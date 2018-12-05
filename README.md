@@ -1,2 +1,11 @@
 # Smart-Contracts-Script
-Deploy and Compile Smart Contracts ( Solidity )
+
+##  1.编译脚本
+		a.install -- web3 solc fs path
+		b.编译: node compiler.js
+   首先在工程目录下，使用**node.js**的*fs*模块，查找是否存在.**sol**格式的合约文件， 若存在：
+   则再去对应目录查找是否存在：与该合约对应的.**abi**、.**json**文件，根据需求，若不存在编译后的文件或合约代码已更改，则执行编译脚本，生成对应的.**abi**、.**json**文件。
+   **注**：运行编译文件报错：原因一：fileName前需加 **:** ; 原因二：最新版solc编译生成.**abi**、.**json**文件时会报错，建议重新安装**稳定版**；
+##  2.部署脚本
+	  部署: node deploy.js
+将.**abi**、.**json文件**以及**所需参数**传递给部署脚本，部署脚本，执行成功则返回合约地址，供前端调用。
