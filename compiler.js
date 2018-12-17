@@ -63,11 +63,17 @@ function catAbi(name, folder) {
           if (stats.isFile()) {
             let fileType = getFileType(files[i]).type;
             let fileName = getFileType(files[i]).name;
-            console.log(fileType);
+            // console.log(fileType);
+            // 存在.abi文件 判断是否对应
             if (fileType === 'abi') {
               if (name !== fileName) {
-                compiler('./' + name + '.sol', ':' + name);
+                return compiler(`./projects/${folder[j]+'/'+name}.sol`, ':' + name, './projects/' + folder[j] + '/app/');
               }
+            } else {
+              // 不存在 直接生成
+              fp = './projects/' + folder[j] + '/app/';
+              console.log(fp);
+              return compiler(`./projects/${folder[j]+'/'+name}.sol`, ':' + name, './projects/' + folder[j] + '/app/');
             }
           }
         });
