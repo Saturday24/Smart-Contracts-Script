@@ -19,7 +19,7 @@ web3.eth.getGasPrice((err, res) => {
     var gasPrice = parseInt(res).toString(16);
     findSol(privateKey.privateKey, gasPrice);
   }
-})
+});
 
 function getFileType(filePath) {
   var startIndex = filePath.lastIndexOf('.');
@@ -35,27 +35,35 @@ function getFileType(filePath) {
 
 function findSol(privateKey, gasPrice) {
   fs.readdir('./projects/', (err, files) => {
-    for(let i = 0; i < files.length; i++) {
-      fs.stat('./projects/'+files[i], (err, stats) => {
-        if(stats.isDirectory()) {
+    for (let i = 0; i < files.length; i++) {
+      fs.stat('./projects/' + files[i], (err, stats) => {
+        if (stats.isDirectory()) {
           // into app dir
-          fs.readdir('./projects/'+files[i]+'/app/',(err, folders) => {
+          fs.readdir('./projects/' + files[i] + '/app/', (err, folders) => {
             for (let j = 0; j < folders.length; j++) {
-              fs.stat('./projects/'+files[i]+'/app/'+folders[j], (err, stats) => {
-                if(stats.isFile()) {
+              fs.stat(
+                './projects/' + files[i] + '/app/' + folders[j],
+                (err, stats) => {
+                  if (stats.isFile()) {
                     let fileType = getFileType(folders[j]).type;
                     let fileName = getFileType(folders[j]).name;
                     if (fileType === 'abi') {
-                      deploy('./projects/'+files[i]+'/app/'+fileName, privateKey, './projects/'+files[i]+'/app/', gasPrice)
+                      deploy(
+                        './projects/' + files[i] + '/app/' + fileName,
+                        privateKey,
+                        './projects/' + files[i] + '/app/',
+                        gasPrice
+                      );
                     }
+                  }
                 }
-              })
+              );
             }
-          })
+          });
         }
-      })
+      });
     }
-  })
+  });
 }
 /*
 @param file 文件名，会自动查找文件名路径下的被编译过的文件
@@ -64,7 +72,6 @@ function findSol(privateKey, gasPrice) {
 @param gasPrice
 */
 function deploy(file, from, filePath, gasPrice) {
-
   var filename = path.parse(file)['name'].toString();
   var interface = fs.readFileSync(file + '.json').toString();
   var bytecode = fs.readFileSync(file + '.abi').toString();
@@ -73,16 +80,19 @@ function deploy(file, from, filePath, gasPrice) {
   var privateKey = new Buffer(from, 'hex');
   //构造的交易中，是不需要包含 from 的，因为这个交易是通过私钥签名的，而私钥生成的签名是可以还原出公钥地址的，所以交易本身不需要冗余存储发送方信息。
   var rawTx = {
-   nonce: '0x00',
-   gasPrice: '0x'+gasPrice,
-   gasLimit: '0x295f05',
-   to: '',
-   data: bytecode
-  }
+    nonce: '0x00',
+    gasPrice: '0x' + gasPrice,
+    gasLimit: '0x295f05',
+    to: '',
+    data: bytecode,
+  };
   var tx = new Tx(rawTx);
   tx.sign(privateKey);
   var serializedTx = tx.serialize();
-  web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function (err, hash) {
+  web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(
+    err,
+    hash
+  ) {
     if (!err) {
       web3.eth.getTransactionReceipt(hash, (err, data) => {
         fs.writeFile(
@@ -93,13 +103,17 @@ function deploy(file, from, filePath, gasPrice) {
             if (err) {
               console.log(err);
             }
-            console.log('contract address write into ' + filePath + filename + 'address.txt');
+            console.log(
+              'contract address write into ' +
+                filePath +
+                filename +
+                'address.txt'
+            );
           }
         );
       });
     } else {
       console.log(err);
     }
-  })
-};
-
+  });
+}
